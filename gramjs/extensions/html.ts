@@ -83,9 +83,17 @@ class HTMLToTelegramParser implements Handler {
                 const rawId = url
                     .slice("tg://user?id=".length)
                     .split("&")[0];
-                if (/^\d+$/.test(rawId)) {
+                if (/^-?\d+$/.test(rawId)) {
                     EntityType = Api.MessageEntityMentionName;
                     args["userId"] = bigInt(rawId);
+                    url = undefined;
+                } else if (
+                    /^@?(?=.*[A-Za-z0-9])[A-Za-z0-9_]{5,32}$/.test(rawId)
+                ) {
+                    EntityType = Api.MessageEntityTextUrl;
+                    args["url"] = rawId.startsWith("@")
+                        ? rawId
+                        : "@" + rawId;
                     url = undefined;
                 } else {
                     EntityType = Api.MessageEntityTextUrl;
